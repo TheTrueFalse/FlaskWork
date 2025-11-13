@@ -4,8 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+    <nav><h1>LinkedIn</h1></nav>
+    {% if user.user_type == 'admin' %}
+   
+    <div class ="admin-panel">
+        <h2>Painel do Administrador</h2>
+        <div class="admin">
+            <div><button type="button">Ver Candidaturas</button></div>       
+            <div><button type="button">Criar Nova Vaga</button></div>
+            <div><button type="button">Procurar por Vagas</button></div>
+        </div>
+    </div>
     
+    {% endif %}
+    <main>
+        <div class="vagas">
+
+            <h1>Vagas</h1>
+            <div class="sidebar">
+                
+            </div>
+            <div class="descricao">
+                
+            </div>
+        </div>
+    </main>
 </body>
 </html>
