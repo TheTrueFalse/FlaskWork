@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.coZ/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+
 html, body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: IMB Plex Sans, sans-serif;
 }
 
 nav {
@@ -34,12 +37,12 @@ nav > h1{
 }
 
 .admin button{
-    width: 200px;
-    height: 60px;
+    width: 240px;
+    height: 55px;
     gap: 20px;
     font-weight: 200px;
     background-color: #0077b5;
-    border-radius: 12px;
+    border-radius: 4px;
     border: none;
 }
 
