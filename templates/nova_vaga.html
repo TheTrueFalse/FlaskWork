@@ -1,0 +1,18 @@
+{% extends "admin_base.html" %}
+
+{% block conteudo %}
+<h2>Criar Nova Vaga</h2>
+
+<form method="POST">
+  <label>Nome da Vaga:</label>
+  <input type="text" name="nm_vaga" required />
+
+  <label>Descrição da Vaga:</label>
+  <textarea name="ds_vaga" required></textarea>
+
+  <label>Localidade:</label>
+  <input type="text" name="localidade" placeholder="Ex: Remoto" required />
+
+  <button type="submit">Criar Vaga</button>
+</form>
+{% endblock %}

@@ -8,31 +8,55 @@ html, body {
 }
 
 nav {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 100px 1fr 1fr 1fr 1fr 100px; 
     background-color: #0077b5;
     color: white;
-    text-align: center;  
+    align-items: center;
     width: 100%;
-    height: 100%;
+    height: 90px; /* define uma altura real da navbar */
+    position: relative;
+    box-shadow: rgb(146, 146, 146) 0px 4px 6px -1px, rgb(0, 0, 0) 0px 2px 4px -1px;
 }
 
 nav > h1{
-    font-size: 36px;
-    padding: 20px;
+    grid-column: 2 / 6; /* pega o miolo da grid */
+    text-align: center;
+    font-size: 38px; 
 }
 
+nav .nav-direita{
+   grid-column: 6;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 60px; /* espaço entre p e img */
+    padding-right: 10px;
+}
+
+nav p{
+    font-size: 18px;
+    white-space: nowrap;
+    
+}
+
+nav img{
+    width: 50px;
+    height: 60px;
+}
+
+
 .admin-panel{
-    border: black 1px solid ;
+    /* border: black 1px solid ; */
     display: grid;
     justify-content: center;
     align-items: center;
     text-align: center;
-    height: 140px;
+    height: 150px;
 }
 
 .admin-panel > h2{
-    border: black 1px solid ;
+    /* border: black 1px solid ; */
     font-size: 24px;
 }
 
@@ -50,14 +74,33 @@ nav > h1{
     background-color: #005f8d;
     color: white;
     cursor: pointer;
-    transition: 700ms;
+    transition: 200ms;
 }
 
+.admin button:active{
+    background-color: #004466;
+    transition: none 0s;
+}
+
+.admin button:focus{
+    outline: 1px transparent;
+}
+
+.admin button:disabled{
+    background-color: #b0b0b0;
+    cursor: default;
+}
+
+.admin button:before {
+    display: none;
+}
+
+
 .admin{
-    width: 1600px;
-    border: black 1px solid ;
+    width: 1800px;
+    /* border: black 1px solid ; */
     display: grid;
-    grid-template-columns:250px 250px 250px; ;
+    grid-template-columns:280px 280px 280px; ;
     gap: 10px;
     justify-content: center;
     align-items: center;
@@ -75,29 +118,88 @@ main{
     width: 1200px;
     display: grid;
     height: 650px;
-    border: black 1px solid ;
     text-align: center;
     align-items: center;
     gap: 10px;
-}
-.vagas > h1{
-    grid-column: 1 / span 3;
-    border: black 1px solid ;
-    font-size: 24px;
-    margin-bottom: -30px;
-    margin-top: -14px;
+    grid-template-columns: 380px 1fr;  /* <-- AQUI ESTÁ A CURA */
+    grid-template-rows: 60px 1fr;
 }
 
-.sidebar {
-    grid-column: 1;
-    width: auto;
+.vagas > h1{
+    grid-column: 1 / span 3;
+    grid-row: 1;
+    /* border: black 1px solid ; */
+    font-size: 18px;
+    margin-bottom: -30px;
+    margin-top: -14px;
+    font-weight: bold;
+}
+
+.lista-vagas{ 
+    grid-row: 2 ;
+    width: 380px;
     height: 600px;
-    border: black 1px solid ;
+    overflow-y: auto;   
+    overflow-x: hidden;
+    /* border: black 1px solid ; */
+}
+
+.lista-vagas button {
+            display: block;
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #d1d1d1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2 cubic-bezier(0.3, 0, 0.5, 1);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            white-space: nowrap;
+            word-wrap: break-word;
+        }
+
+.lista-vagas button:hover {
+            background: #b0b0b0;
+            text-decoration: none;
+            transition-duration: 0.1s;
+        }
+
+.lista-vagas button:disabled {
+            background: #f0f0f0;
+            color: #a0a0a0;
+            cursor: default;
+        }        
+
+.lista-vagas button:active {
+            background: #909090;
+            transition: none  0s;
+        }
+
+.lista-vagas button:focus {
+            outline: 1px transparent;
+        }
+
+.lista-vagas button:before {
+    display: none;
+}
+
+.lista-vagas button:-webkit-details-marker {
+    display: none;
 }
 
 .descricao{
     grid-column: 2 / span 2;
-    border: black 1px solid ;
+    /* border: black 1px solid ; */
+    grid-row: 2;
     height: 600px;
     width: auto;
+    background-color: #ebeaea;
+    border-radius: 6px;
+    box-shadow: rgb(0, 0, 0) 1px, 6px, 6px, 1px,
 }

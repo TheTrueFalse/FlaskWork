@@ -1,0 +1,15 @@
+{% extends "admin_base.html" %}
+
+{% block conteudo %}
+<h2>Candidaturas Recebidas</h2>
+
+{% if candidaturas %}
+<ul>
+  {% for c in candidaturas %}
+  <li><strong>{{ c.nome }}</strong> — Vaga: {{ c.vaga }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Nenhuma candidatura encontrada.</p>
+{% endif %}
+{% endblock %}
