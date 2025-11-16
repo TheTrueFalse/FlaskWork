@@ -81,11 +81,23 @@ class CandidatoVaga(db.Model):
 
 # --- Rota Principal (HTML) ---
 
+# [Substitua sua @app.route('/') por esta]
+
 @app.route('/')
 def index():
     try:
         vaga_id = request.args.get('vaga_id', type=int)
-        vagas_list = db.session.execute(select(VagaEmprego).order_by(VagaEmprego.id_vaga.desc())).scalars().all()
+        
+        search_query = request.args.get('search_query', '')
+
+        query = select(VagaEmprego)
+
+        # 3. Se houver um termo de busca, adiciona o filtro
+        if search_query:
+            query = query.where(VagaEmprego.titulo_vaga.ilike(f'%{search_query}%'))
+
+        query = query.order_by(VagaEmprego.id_vaga.desc())
+        vagas_list = db.session.execute(query).scalars().all()
         
         vaga_selecionada = None
         if vaga_id:
@@ -95,12 +107,18 @@ def index():
         print(f"Erro ao buscar vagas do DB: {e}")
         vagas_list = []
         vaga_selecionada = None
+        search_query = '' 
 
-    # Alterne aqui para testar
     mock_user = {'user_type': 'admin', 'nome': 'Admin'} 
     #mock_user = {'user_type': 'user', 'nome': 'João'}
 
-    return render_template('index.html', vagas=vagas_list, vaga=vaga_selecionada, user=mock_user)
+    return render_template(
+        'index.html', 
+        vagas=vagas_list, 
+        vaga=vaga_selecionada, 
+        user=mock_user, 
+        search_query=search_query
+    )
 
 @app.route('/vaga/<int:id_vaga>/candidatar', methods=['POST'])
 def candidatar_vaga(id_vaga):
