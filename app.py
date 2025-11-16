@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+# 1. 'jsonify' foi adicionado aqui
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import select, delete
@@ -8,7 +9,7 @@ import time
 
 app = Flask(__name__)
 
-# --- Configuração do Banco de Dados ---
+# --- Configuração da Base de Dados ---
 DB_USER = "neondb_owner"
 DB_PASSWORD = "npg_7qPbIwLmQ1Nf"
 DB_HOST = "ep-young-field-a89tdevs-pooler.eastus2.azure.neon.tech"
@@ -81,8 +82,6 @@ class CandidatoVaga(db.Model):
 
 # --- Rota Principal (HTML) ---
 
-# [Substitua sua @app.route('/') por esta]
-
 @app.route('/')
 def index():
     try:
@@ -92,7 +91,6 @@ def index():
 
         query = select(VagaEmprego)
 
-        # 3. Se houver um termo de busca, adiciona o filtro
         if search_query:
             query = query.where(VagaEmprego.titulo_vaga.ilike(f'%{search_query}%'))
 
@@ -104,11 +102,12 @@ def index():
             vaga_selecionada = db.session.get(VagaEmprego, vaga_id)
 
     except Exception as e:
-        print(f"Erro ao buscar vagas do DB: {e}")
+        print(f"Erro ao procurar vagas na BD: {e}")
         vagas_list = []
         vaga_selecionada = None
         search_query = '' 
 
+    # Alterne aqui para testar
     mock_user = {'user_type': 'admin', 'nome': 'Admin'} 
     #mock_user = {'user_type': 'user', 'nome': 'João'}
 
@@ -119,6 +118,9 @@ def index():
         user=mock_user, 
         search_query=search_query
     )
+
+
+# --- ROTAS DE AÇÃO DO HTML ---
 
 @app.route('/vaga/<int:id_vaga>/candidatar', methods=['POST'])
 def candidatar_vaga(id_vaga):
@@ -132,9 +134,8 @@ def candidatar_vaga(id_vaga):
         
         usuario = db.session.get(Usuario, id_usuario_mock)
         if not usuario:
-            return "Usuário mock (ID 1) não encontrado. Adicione-o ao banco.", 404
+            return "Utilizador mock (ID 1) não encontrado. Adicione-o à base de dados.", 404
 
-        # Verifica se ele já não se candidatou
         candidatura_existente = db.session.execute(
             select(CandidatoVaga).where(
                 CandidatoVaga.id_vaga == id_vaga,
@@ -143,15 +144,14 @@ def candidatar_vaga(id_vaga):
         ).first()
         
         if candidatura_existente:
-            print("Usuário já candidatado!")
+            print("Utilizador já candidatado!")
             return redirect(url_for('index', vaga_id=id_vaga))
 
-        # Cria a nova candidatura
         nova_candidatura = CandidatoVaga(id_vaga=id_vaga, id_usuario=id_usuario_mock)
         db.session.add(nova_candidatura)
         db.session.commit()
         
-        print(f"Usuário {id_usuario_mock} candidatou-se à vaga {id_vaga}")
+        print(f"Utilizador {id_usuario_mock} candidatou-se à vaga {id_vaga}")
 
         return redirect(url_for('index', vaga_id=id_vaga))
 
@@ -167,17 +167,15 @@ def deletar_vaga_form(id_vaga):
         if vaga is None:
             return "Vaga não encontrada", 404
             
-        # Deleta as candidaturas primeiro
         db.session.execute(delete(CandidatoVaga).where(CandidatoVaga.id_vaga == id_vaga))
             
-        # Deleta a vaga
         db.session.delete(vaga)
         db.session.commit()
         
         return redirect(url_for('index'))
     except Exception as e:
         db.session.rollback()
-        return "Erro ao deletar vaga", 500
+        return "Erro ao eliminar vaga", 500
 
 @app.route('/vaga/<int:id_vaga>/editar', methods=['GET', 'POST'])
 def editar_vaga(id_vaga):
@@ -197,14 +195,87 @@ def editar_vaga(id_vaga):
             return redirect(url_for('index', vaga_id=id_vaga))
         except Exception as e:
             db.session.rollback()
-            return "Erro ao salvar edição", 500
+            return "Erro ao guardar edição", 500
     
     return render_template('editar_vaga.html', vaga=vaga)
 
+# ROTA DE API PARA CRIAR (POST) E LER (GET) VAGAS
+@app.route("/VagaEmprego", methods=["GET", "POST"])
+def vaga_api():
+    
+    # Se for POST, o código para CRIAR uma vaga
+    if request.method == 'POST':
+        try:
+            data = request.json 
+            
+            if not data or 'titulo_vaga' not in data or 'descricao_vaga' not in data or 'empresa_vaga' not in data or 'salario_vaga' not in data:
+                return jsonify({"error": "Dados inválidos: titulo, descricao, empresa e salario são obrigatórios."}), 400
+
+            nova_vaga = VagaEmprego(
+                titulo_vaga=data['titulo_vaga'],
+                empresa_vaga=data['empresa_vaga'],
+                salario_vaga=data['salario_vaga'],
+                descricao_vaga=data['descricao_vaga'],
+                candidaturas_vaga=data.get('candidaturas_vaga', 0)
+            )
+            
+            db.session.add(nova_vaga)
+            db.session.commit()
+            
+            return jsonify(nova_vaga.to_dict()), 201 
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": f"Erro ao criar vaga: {str(e)}"}), 500
+    
+    if request.method == 'GET':
+        try:
+            vagas_list = db.session.execute(select(VagaEmprego).order_by(VagaEmprego.id_vaga.desc())).scalars().all()
+            return jsonify([vaga.to_dict() for vaga in vagas_list])
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route("/VagaEmprego/<int:id_vaga>", methods=["GET", "PUT", "DELETE"])
+    def vaga_api_detalhe(id_vaga):
+        
+        vaga = db.session.get(VagaEmprego, id_vaga)
+        
+        if not vaga:
+            return jsonify({"error": "Vaga não encontrada"}), 404
+
+        if request.method == 'GET':
+            return jsonify(vaga.to_dict())
+
+        if request.method == 'PUT':
+            try:
+                data = request.json
+                
+                vaga.titulo_vaga = data.get('titulo_vaga', vaga.titulo_vaga)
+                vaga.empresa_vaga = data.get('empresa_vaga', vaga.empresa_vaga)
+                vaga.salario_vaga = data.get('salario_vaga', vaga.salario_vaga)
+                vaga.descricao_vaga = data.get('descricao_vaga', vaga.descricao_vaga)
+
+                db.session.commit()
+                return jsonify(vaga.to_dict()), 200 # 200 OK
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"error": f"Erro ao atualizar vaga: {str(e)}"}), 500
+
+        if request.method == 'DELETE':
+            try:
+                db.session.execute(delete(CandidatoVaga).where(CandidatoVaga.id_vaga == id_vaga))
+                
+                db.session.delete(vaga)
+                db.session.commit()
+                return jsonify({"message": "Vaga deletada com sucesso"}), 200
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"error": f"Erro ao deletar vaga: {str(e)}"}), 500
+
+# --- Bloco de Execução ---
 
 if __name__ == '__main__':
     with app.app_context():
-         # db.create_all() # Descomente se precisar criar as tabelas pela primeira vez
+         # db.create_all() # Descomente se precisar de criar as tabelas pela primeira vez
          print("Contexto da aplicação carregado.")
          
     app.run(debug=True, port=5153)
