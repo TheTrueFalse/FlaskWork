@@ -235,9 +235,10 @@ def editar_vaga(id_vaga):
             return redirect(url_for('index', vaga_id=id_vaga))
         except Exception as e:
             db.session.rollback()
-            return "Erro ao guardar edição", 500
+            return "Erro ao salvar edição", 500
     
-    return render_template('editar_vaga.html', vaga=vaga)
+    return render_template('editar_vaga.html', vaga=vaga, user={'user_type':'admin','nome':'Admin'})
+
 
 # ROTA DE API PARA CRIAR (POST) E LER (GET) VAGAS
 @app.route("/VagaEmprego", methods=["GET", "POST"])
