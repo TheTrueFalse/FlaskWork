@@ -27,26 +27,6 @@
       </div>
       <div>
         <a href="#search-box"><button>Procurar por Vagas</button></a>
-  <nav>
-    <h1>Vagas Express</h1>
-    <div class="nav-direita">
-      <p>Ola, {{user.nome}}!</p>
-      <img src="/static/img/profile-circle-svgrepo-com.svg" />
-    </div>
-  </nav>
-
-  {% if user.user_type == 'admin' %}
-  <div class="admin-panel">
-    <h2>Possibilidades De Admin</h2>
-    <div class="admin">
-      <div>
-        <a href="/admin/candidaturas"><button>Ver Candidaturas</button></a>
-      </div>
-      <div>
-        <a href="/admin/nova_vaga"><button>Criar Nova Vaga</button></a>
-      </div>
-      <div>
-        <a href="#search-box"><button>Procurar por Vagas</button></a>
       </div>
     </div>
   </div>
@@ -103,70 +83,7 @@
           </form>
           {% endif %}
         </div>
-  </div>
-  {% endif %}
 
-  <main>
-    <div class="search-panel" id="search-box">
-      <form method="GET" action="{{ url_for('index') }}">
-        <input 
-          type="text" 
-          name="search_query" 
-          placeholder="Buscar pelo título da vaga..." 
-          value="{{ search_query }}"
-        >
-        <button type="submit">Buscar</button>
-      </form>
-    </div>
-
-    <div class="vagas">
-      <h1>Vagas</h1>
-      <div class="lista-vagas">
-        {% for v in vagas %}
-        <a href="/?vaga_id={{ v.id_vaga }}">
-          <button>{{ v.titulo_vaga }}</button>
-        </a>
-        {% endfor %}
-      </div>
-      
-      {% block descricao %}
-      <div class="descricao" id="descricao">
-        {% if vaga %}
-        <h2>{{ vaga.titulo_vaga }}</h2>
-        <p><strong>Empresa:</strong> {{ vaga.empresa_vaga }}</p>
-        <p><strong>Salário:</strong> R$ {{ vaga.salario_vaga }}</p>
-        <p><strong>Descrição:</strong></p>
-        <p>{{ vaga.descricao_vaga }}</p>
-        <hr>
-        
-        <p><strong>Candidatos: {{ vaga.candidatos | length }}</strong></p>
-
-        <div class="vaga-actions">
-          {% if user.user_type == 'admin' %}
-          <a href="{{ url_for('editar_vaga', id_vaga=vaga.id_vaga) }}">
-            <button class="btn-editar">Editar</button>
-          </a>
-          <form action="{{ url_for('deletar_vaga_form', id_vaga=vaga.id_vaga) }}" method="POST" style="display: inline;">
-            <button type="submit" class="btn-deletar" onclick="return confirm('Tem certeza que deseja deletar esta vaga?');">
-              Deletar
-            </button>
-          </form>
-          {% else %}
-          <form action="{{ url_for('candidatar_vaga', id_vaga=vaga.id_vaga) }}" method="POST">
-            <button type="submit" class="btn-candidatar">Candidatar-se</button>
-          </form>
-          {% endif %}
-        </div>
-
-        {% else %}
-        <h2>Selecione uma vaga</h2>
-        <p>A descrição irá aparecer aqui.</p>
-        {% endif %}
-      </div>
-      {% endblock %}
-    </div>
-  </main>
-</body>
         {% else %}
         <h2>Selecione uma vaga</h2>
         <p>A descrição irá aparecer aqui.</p>
