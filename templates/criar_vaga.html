@@ -1,0 +1,30 @@
+{% extends "admin_base.html" %}
+
+{% block conteudo %}
+<div class="descricao expandida">
+
+    <a href="/" class="btn-voltar">
+        <button class="botao_padrao">Voltar</button>
+    </a>
+
+    <h2>Criar Nova Vaga</h2>
+
+    <form method="POST" class="criar-vagas">
+
+        <label>Título:</label>
+        <input type="text" name="titulo_vaga" required>
+
+        <label>Empresa:</label>
+        <input type="text" name="empresa_vaga" required>
+
+        <label>Salário:</label>
+        <input type="number" name="salario_vaga" required>
+
+        <label>Descrição:</label>
+        <textarea name="descricao_vaga" required></textarea>
+
+        <button type="submit" class="botao_padrao">Criar</button>
+
+    </form>
+</div>
+{% endblock %}

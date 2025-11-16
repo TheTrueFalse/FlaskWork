@@ -1,8 +1,25 @@
-{% extends "index.html" %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Vagas</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
 
-{% block descricao %}
-<div class="descricao" id="descricao">
-    {% block conteudo %}
-    {% endblock %}
-</div>
-{% endblock %}
+<body>
+
+    <nav>
+        <h1>Vagas Express</h1>
+        <div class="nav-direita">
+            <p>Ola, {{ user.nome }}!</p>
+            <img src="/static/img/profile-circle-svgrepo-com.svg" />
+        </div>
+    </nav>
+
+    <main class="layout-admin">
+        {% block conteudo %}{% endblock %}
+    </main>
+
+</body>
+</html>

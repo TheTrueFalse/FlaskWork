@@ -110,7 +110,7 @@ def index():
         search_query = '' 
 
     mock_user = {'user_type': 'admin', 'nome': 'Admin'} 
-    #mock_user = {'user_type': 'user', 'nome': 'João'}
+#mock_user = {'user_type': 'user', 'nome': 'João'}
 
     return render_template(
         'index.html', 
@@ -119,6 +119,49 @@ def index():
         user=mock_user, 
         search_query=search_query
     )
+
+@app.route('/criar_vagas', methods=['GET', 'POST'])
+def criar_vagas():
+    if request.method == 'POST':
+        try:
+            titulo = request.form['titulo_vaga']
+            empresa = request.form['empresa_vaga']
+            salario = request.form['salario_vaga']
+            descricao = request.form['descricao_vaga']
+
+            nova = VagaEmprego(
+                titulo_vaga=titulo,
+                empresa_vaga=empresa,
+                salario_vaga=salario,
+                descricao_vaga=descricao,
+                candidaturas_vaga=0
+            )
+
+            db.session.add(nova)
+            db.session.commit()
+
+            return redirect(url_for('index'))
+        
+        except Exception as e:
+            db.session.rollback()
+            print("Erro ao criar vaga:", e)
+            return "Erro ao criar vaga", 500
+
+    mock_user = {'user_type': 'admin', 'nome': 'Admin'}
+    return render_template('criar_vaga.html', user=mock_user)
+
+
+@app.route('/candidaturas/<int:id_vaga>')
+def ver_candidatos(id_vaga):
+    vaga = db.session.get(VagaEmprego, id_vaga)
+    if not vaga:
+        return "Vaga não encontrada", 404
+
+    candidatos = vaga.candidatos  # relacionamento do SQLAlchemy
+
+    mock_user = {'user_type': 'admin', 'nome': 'Admin'}
+    return render_template('candidaturas.html', vaga=vaga, candidatos=candidatos, user=mock_user)
+
 
 @app.route('/vaga/<int:id_vaga>/candidatar', methods=['POST'])
 def candidatar_vaga(id_vaga):

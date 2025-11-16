@@ -7,90 +7,105 @@
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
-  <nav>
-    <h1>Vagas Express</h1>
-    <div class="nav-direita">
-      <p>Ola, {{user.nome}}!</p>
-      <img src="/static/img/profile-circle-svgrepo-com.svg" />
-    </div>
-  </nav>
-
-  {% if user.user_type == 'admin' %}
-  <div class="admin-panel">
-    <h2>Possibilidades De Admin</h2>
-    <div class="admin">
-      <div>
-        <a href="/admin/candidaturas"><button>Ver Candidaturas</button></a>
+    <nav>
+      <h1>Vagas Express</h1>
+      <div class="nav-direita">
+        <p>Ola, {{user.nome}}!</p>
+        <img src="/static/img/profile-circle-svgrepo-com.svg" />
       </div>
-      <div>
-        <a href="/admin/nova_vaga"><button>Criar Nova Vaga</button></a>
-      </div>
-      <div>
-        <a href="#search-box"><button>Procurar por Vagas</button></a>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  <main>
-    <div class="search-panel" id="search-box">
-      <form method="GET" action="{{ url_for('index') }}">
-        <input 
-          type="text" 
-          name="search_query" 
-          placeholder="Buscar pelo título da vaga..." 
-          value="{{ search_query }}"
-        >
-        <button type="submit">Buscar</button>
-      </form>
-    </div>
-
-    <div class="vagas">
-      <h1>Vagas</h1>
-      <div class="lista-vagas">
-        {% for v in vagas %}
-        <a href="/?vaga_id={{ v.id_vaga }}">
-          <button>{{ v.titulo_vaga }}</button>
-        </a>
-        {% endfor %}
-      </div>
-      
-      {% block descricao %}
-      <div class="descricao" id="descricao">
-        {% if vaga %}
-        <h2>{{ vaga.titulo_vaga }}</h2>
-        <p><strong>Empresa:</strong> {{ vaga.empresa_vaga }}</p>
-        <p><strong>Salário:</strong> R$ {{ vaga.salario_vaga }}</p>
-        <p><strong>Descrição:</strong></p>
-        <p>{{ vaga.descricao_vaga }}</p>
-        <hr>
+    </nav>
+    <h1 class="texto-topo">Vagas</h1>
+    <main>
+      <div class="vagas">
+        {% if user.user_type == 'admin' %}
+        <div class="criar-vaga-button">
+          <a href="/criar_vagas"
+            ><button class="botao_padrao">Criar Nova Vaga</button></a
+          >
+        </div>
+        {% endif %}
         
-        <p><strong>Candidatos: {{ vaga.candidatos | length }}</strong></p>
-
-        <div class="vaga-actions">
-          {% if user.user_type == 'admin' %}
-          <a href="{{ url_for('editar_vaga', id_vaga=vaga.id_vaga) }}">
-            <button class="btn-editar">Editar</button>
-          </a>
-          <form action="{{ url_for('deletar_vaga_form', id_vaga=vaga.id_vaga) }}" method="POST" style="display: inline;">
-            <button type="submit" class="btn-deletar" onclick="return confirm('Tem certeza que deseja deletar esta vaga?');">
-              Deletar
-            </button>
+        <div class="search-panel" id="search-box">
+          <form method="GET" action="{{ url_for('index') }}">
+            <input
+              type="text"
+              name="search_query"
+              placeholder="Buscar pelo título da vaga..."
+              value="{{ search_query }}"
+            />
+            <button type="submit">Buscar</button>
           </form>
-          {% else %}
-          <form action="{{ url_for('candidatar_vaga', id_vaga=vaga.id_vaga) }}" method="POST">
-            <button type="submit" class="btn-candidatar">Candidatar-se</button>
-          </form>
-          {% endif %}
+        </div>
+        <div class="lista-vagas">
+          <div class="centralizar-lista-vagas">
+            {% for v in vagas %}
+            <a href="/?vaga_id={{ v.id_vaga }}">
+              <button>{{ v.titulo_vaga }}</button>
+            </a>
+            {% endfor %}
+          </div>
         </div>
 
-        {% else %}
-        <h2>Selecione uma vaga</h2>
-        <p>A descrição irá aparecer aqui.</p>
-        {% endif %}
+        {% block descricao %}
+        <div class="descricao" id="descricao">
+          <div class="centralizar-descricao">
+            {% if vaga %}
+            <h2>{{ vaga.titulo_vaga }}</h2>
+            <hr />
+            <br />
+            <p><strong>Empresa:</strong> {{ vaga.empresa_vaga }}</p>
+            <p><strong>Salário:</strong> R$ {{ vaga.salario_vaga }}</p>
+
+            <p><strong>Descrição:</strong></p>
+            <div class="texto-descricao">
+              {{ vaga.descricao_vaga | replace('\n', '<br />') | safe }}
+            </div>
+            <hr />
+
+            <p><strong>Candidatos: {{ vaga.candidatos | length }}</strong></p>
+
+            <div class="vaga-actions">
+              {% if user.user_type == 'admin' %}
+              <a href="{{ url_for('editar_vaga', id_vaga=vaga.id_vaga) }}">
+                <button class="botao_padrao">Editar</button>
+              </a>
+              <div>
+                <a href="{{ url_for('ver_candidatos', id_vaga=vaga.id_vaga) }}">
+                  <button class="botao_padrao">Ver Candidaturas</button>
+                </a>
+              </div>
+              <form
+                action="{{ url_for('deletar_vaga_form', id_vaga=vaga.id_vaga) }}"
+                method="POST"
+              >
+                <button
+                  type="submit"
+                  class="botao_padrao"
+                  onclick="return confirm('Tem certeza que deseja deletar esta vaga?');"
+                >
+                  Deletar
+                </button>
+              </form>
+              {% else %}
+              <form
+                action="{{ url_for('candidatar_vaga', id_vaga=vaga.id_vaga) }}"
+                method="POST"
+              >
+                <button type="submit" class="botao_padrao">
+                  Candidatar-se
+                </button>
+              </form>
+              {% endif %}
+            </div>
+
+            {% else %}
+            <h2>Selecione uma vaga</h2>
+            <p>A descrição irá aparecer aqui.</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endblock %}
       </div>
-      {% endblock %}
-    </div>
-  </main>
-</body>
+    </main>
+  </body>
 </html>

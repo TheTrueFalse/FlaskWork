@@ -1,15 +1,23 @@
 {% extends "admin_base.html" %}
 
 {% block conteudo %}
-<h2>Candidaturas Recebidas</h2>
+<div class="descricao expandida">
 
-{% if candidaturas %}
-<ul>
-  {% for c in candidaturas %}
-  <li><strong>{{ c.nome }}</strong> — Vaga: {{ c.vaga }}</li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>Nenhuma candidatura encontrada.</p>
-{% endif %}
+    <h2>Candidatos — {{ vaga.titulo_vaga }}</h2>
+    <hr><br>
+
+    {% if candidatos %}
+        {% for c in candidatos %}
+        <div class="card-candidato">
+            <p><strong>Nome:</strong> {{ c.usuario.nm_usuario }}</p>
+            <p><strong>CPF:</strong> {{ c.usuario.cpf_usuario }}</p>
+            <p><strong>Emprego atual:</strong> {{ c.usuario.emprego_atual }}</p>
+            <hr>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Nenhum candidato para esta vaga.</p>
+    {% endif %}
+
+</div>
 {% endblock %}
