@@ -136,17 +136,21 @@ main{
 }
 
 .lista-vagas{ 
+    justify-content: center;
     grid-row: 2 ;
     width: 380px;
     height: 600px;
     overflow-y: auto;   
     overflow-x: hidden;
     /* border: black 1px solid ; */
+    background-color: #ebeaea;
+    border-radius: 8px;
+    display: flex;
 }
 
 .lista-vagas button {
-            display: block;
-            width: 100%;
+            
+            width: 280px;
             height: 180px;
             padding: 12px;
             margin-bottom: 10px;
