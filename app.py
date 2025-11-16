@@ -3,6 +3,7 @@ from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import select
+from sqlalchemy import func
 import time
 
 app = Flask(__name__)
@@ -34,6 +35,24 @@ class VagaEmprego(db.Model):
             'localidade': self.localidade
         }
 
+#essa parada aq é a clasee para a tabela que vai guardar as inscrições 
+class InscricaoVaga(db.Model):
+    __tablename__ = 'inscricao_vaga'  # usei um pouco da muleta aq 
+
+    id_inscricao = db.Column(db.Integer, primary_key=True)
+    id_vaga = db.Column(db.Integer, db.ForeignKey('vaga_emprego.id_vaga'), nullable=False)
+
+    # Exemplo de outro campo qualquer, ajusta conforme o schema real(chat deu suporte)
+    nm_pessoa = db.Column(db.String(100), nullable=False)
+
+    vaga = db.relationship('VagaEmprego', backref='inscricoes')
+
+    def to_dict(self):
+        return {
+            'id_inscricao': self.id_inscricao,
+            'id_vaga': self.id_vaga,
+            'nm_pessoa': self.nm_pessoa
+        }
 
 @app.route('/')
 def index():
@@ -119,6 +138,67 @@ def delete_task(id_vaga):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Erro ao deletar vaga: {str(e)}"}), 500
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5153)
+
+#viado essa aq ela é apra as pessoas estão inscritas em uma vaga específica
+@app.route("/VagaEmprego/<int:id_vaga>/inscritos", methods=["GET"])
+def contar_inscritos_vaga(id_vaga):
+    try:
+        vaga = db.session.get(VagaEmprego, id_vaga)
+        if vaga is None:
+            return jsonify({"error": f"Vaga com ID {id_vaga} não encontrada."}), 404
+
+        total_inscritos = db.session.execute(
+            select(func.count(InscricaoVaga.id_inscricao)).where(InscricaoVaga.id_vaga == id_vaga)
+        ).scalar_one()
+
+        return jsonify({
+            "id_vaga": id_vaga,
+            "nm_vaga": vaga.nm_vaga,
+            "total_inscritos": total_inscritos
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"Erro ao buscar inscritos da vaga: {str(e)}"}), 500
+
+
+# rota para listar todas as vagas com a contagem de inscritos
+@app.route("/VagaEmprego/inscritos", methods=["GET"])
+def listar_vagas_com_inscritos():
+    try:
+        resultado = db.session.execute(
+            select(
+                VagaEmprego.id_vaga,
+                VagaEmprego.nm_vaga,
+                VagaEmprego.localidade,
+                func.count(InscricaoVaga.id_inscricao).label("total_inscritos")
+            ).join(
+                InscricaoVaga,
+                VagaEmprego.id_vaga == InscricaoVaga.id_vaga,
+                isouter=True
+            ).group_by(
+                VagaEmprego.id_vaga,
+                VagaEmprego.nm_vaga,
+                VagaEmprego.localidade
+            ).order_by(
+                VagaEmprego.id_vaga.desc()
+            )
+        ).all()
+
+        response = []
+        for row in resultado:
+            response.append({
+                "id_vaga": row.id_vaga,
+                "nm_vaga": row.nm_vaga,
+                "localidade": row.localidade,
+                "total_inscritos": row.total_inscritos
+            })
+
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": f"Erro ao listar vagas com inscritos: {str(e)}"}), 500
 
 
 if __name__ == '__main__':
