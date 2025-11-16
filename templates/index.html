@@ -38,18 +38,45 @@
         <div class="lista-vagas">
           {% for v in vagas %}
           <a href="/?vaga_id={{ v.id_vaga }}">
-            <button>{{ v.nm_vaga }}</button>
+            <button>{{ v.titulo_vaga }}</button>
           </a>
           {% endfor %}
         </div>
+        
         {% block descricao %}
         <div class="descricao" id="descricao">
           {% if vaga %}
-          <h2>{{ vaga.nm_vaga }}</h2>
+          <h2>{{ vaga.titulo_vaga }}</h2>
+          <p><strong>Empresa:</strong> {{ vaga.empresa_vaga }}</p>
+          <p><strong>Salário:</strong> R$ {{ vaga.salario_vaga }}</p>
           <p><strong>Descrição:</strong></p>
-          <p>{{ vaga.ds_vaga }}</p>
+          <p>{{ vaga.descricao_vaga }}</p>
+          <hr>
+          
+          <p><strong>Candidatos: {{ vaga.candidatos | length }}</strong></p>
 
-          <p><strong>Localidade:</strong> {{ vaga.localidade }}</p>
+          <div class="vaga-actions">
+            
+            {% if user.user_type == 'admin' %}
+              
+              <a href="{{ url_for('editar_vaga', id_vaga=vaga.id_vaga) }}">
+                <button class="btn-editar">Editar</button>
+              </a>
+
+              <form action="{{ url_for('deletar_vaga_form', id_vaga=vaga.id_vaga) }}" method="POST" style="display: inline;">
+                <button type="submit" class="btn-deletar" onclick="return confirm('Tem certeza que deseja deletar esta vaga?');">
+                  Deletar
+                </button>
+              </form>
+
+            {% else %}
+
+              <form action="{{ url_for('candidatar_vaga', id_vaga=vaga.id_vaga) }}" method="POST">
+                <button type="submit" class="btn-candidatar">Candidatar-se</button>
+              </form>
+
+            {% endif %}
+          </div>
 
           {% else %}
           <h2>Selecione uma vaga</h2>
