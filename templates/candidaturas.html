@@ -2,9 +2,13 @@
 
 {% block conteudo %}
 <div class="descricao expandida">
+    <a href="/?vaga_id={{ vaga.id_vaga }}" class="btn-voltar">
+        <button class="botao_padrao">Voltar</button>
+    </a>
 
     <h2>Candidatos — {{ vaga.titulo_vaga }}</h2>
     <hr><br>
+    
 
     {% if candidatos %}
         {% for c in candidatos %}
